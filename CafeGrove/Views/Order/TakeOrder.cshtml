@@ -1,0 +1,135 @@
+﻿@using System.Data
+@using CafeGrove.Models
+@model IEnumerable<CafeGrove.Models.Category>
+
+@{
+    ViewBag.Title = "Take Order";
+}
+
+@*<h2>title</h2>*@
+<div class="container">
+
+
+    <h2>Take Order</h2>
+    <div class="row">
+
+        <div class="col-md-8">
+
+            <div class="panel panel-default" style="height: 500px">
+                <div class="panel-heading">Products</div>
+                <div class="panel-body">
+                    <br />
+                    @foreach (var item in Model)
+                    {
+                        var divId = "div" + item.Id;
+
+                        <div id="@divId" class="productDiv">
+                            @foreach (var product in item.Products)
+
+                            {
+                                <button class="btn btn-default addProduct" id="@product.Id">@product.Name</button>
+                            }
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+        @Html.Hidden("hdnTableNo", (string)ViewBag.tableNo)
+        <div class="col-md-4">
+
+
+            @{
+                Html.RenderAction("GetOrder", new { tableNo = ViewBag.tableNo.ToString() });
+            }
+
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Categories</div>
+                <div class="panel-body">
+
+                    @foreach (var item in Model)
+                    {
+                        <button class="btn btn-danger showProduct" id="@item.Id">@item.Name</button>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <a href=" @Url.RouteUrl("Tables")" class="btn btn-warning">
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                Go Back to Tables
+            </a>
+          
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+
+        //$('.panel-collapse').on('show.bs.collapse', function () {
+        //    $(this).siblings('.panel-heading').addClass('active');
+        //});
+
+        //$('.panel-collapse').on('hide.bs.collapse', function () {
+        //    $(this).siblings('.panel-heading').removeClass('active');
+        //});
+
+        var $ = jQuery;
+        $(document).ready(function () {
+            $('.productDiv').hide();
+            //.addProduct
+            $('.addProduct').click(function () {
+                debugger;
+                var productId = $(this).attr("id");
+                var tableNo = $("#hdnTableNo").val();
+                //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
+                $.ajax({
+                    url: "/Order/AddToOrder/" + tableNo + "/" + productId,
+                    type: 'GET',
+                    cache: false,
+                }).done(function (result) {
+                    $('#allProducts').html(result);
+                });
+
+            });
+
+            $('.deleteProduct').click(function () {
+                debugger;
+                var productId = $(this).attr("id");
+                var tableNo = $("#hdnTableNo").val();
+                //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
+                $.ajax({
+                    url: "/Order/DeleteProductFromOrder/" + tableNo + "/" + productId,
+                    type: 'GET',
+                    cache: false,
+                }).done(function (result) {
+                    $('#allProducts').html(result);
+                });
+
+            });
+            $('.showProduct').click(function () {
+
+                var id = $(this).attr("id");
+                var divId = "#div" + id;
+                $('.productDiv').hide();
+                $(divId).show("fast");
+
+                //$(Create).show();
+
+            });
+        });
+    </script>
+}

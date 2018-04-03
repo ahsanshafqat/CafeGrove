@@ -1,0 +1,31 @@
+﻿
+@{
+    ViewBag.Title = "Orders";
+}
+
+
+<h2>Tables</h2>
+
+
+@for (int tableId = 0; tableId <= 3; tableId++)
+{
+    string tableName = "Table ";//+ tableId;
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-sm-6">
+                
+                @Html.RouteLink(tableName + (tableId + 1),  "TakeOrder", new { tableNo = (tableId + 1) }, new { @class = "btn btn-primary btn-lg" })
+                &nbsp;
+                @Html.RouteLink(tableName + (tableId + 2), "TakeOrder", new { tableNo = (tableId + 2) }, new { @class = "btn btn-primary btn-lg" })
+                &nbsp;
+                @Html.RouteLink(tableName + (tableId + 3), "TakeOrder", new { tableNo = (tableId + 3) }, new { @class = "btn btn-primary btn-lg" })
+            </div>
+        </div>
+        <br />
+    </div>
+}
+
+
+
+
