@@ -9,14 +9,16 @@
             <ul class="list-group">
                 @foreach (var item in Model)
                 {
-                <li class="list-group-item ">
-                    <div>
-                        <h4>@item.Product.Name</h4>
-                        Quanity: <small class="text-muted">@item.Quantity</small>
-                    </div>
-                    Price: <span class="text-muted">£@item.Product.Price</span>
-                    <button class="btn btn-danger glyphicon glyphicon-remove btn-sm deleteProduct" id="@item.Id"></button>
-                </li>
+                    <li class="list-group-item ">
+                        <div>
+                            <h4>@item.Product.Name</h4>
+                            Quanity: <small class="text-muted">@item.Quantity</small>
+                        </div>
+                        Price: <span class="text-muted">£@item.Product.Price</span>
+                        <button class="btn btn-danger glyphicon glyphicon-remove btn-sm deleteProduct" id="@item.Product.Id"></button>
+                        <button class="btn btn-danger glyphicon glyphicon-plus-sign btn-sm increaseProductQuantity" id="@item.Product.Id"></button>
+                        <button class="btn btn-danger glyphicon glyphicon-minus-sign btn-sm decreaseProductQuantity" id="@item.Product.Id"></button>
+                    </li>
 
                 }
                 <li class="list-group-item  ">
@@ -28,7 +30,55 @@
 
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $('.deleteProduct').click(function () {
+            debugger;
+            var productId = $(this).attr("id");
+            var tableNo = $("#hdnTableNo").val();
+            //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
+            $.get({
+                url: "/Order/DeleteProductFromOrder/" + tableNo + "/" + productId
+            }).done(function (result) {
+                $('#allProducts').html(result);
+            }).fail(function () {
+                alert("error");
+            });
 
+        });
+
+        $('.increaseProductQuantity').click(function () {
+            debugger;
+            var productId = $(this).attr("id");
+            var tableNo = $("#hdnTableNo").val();
+            //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
+            $.get({
+                url: "/Order/ChangeProductQuantity/" + tableNo + "/" + productId + "/1"
+            }).done(function (result) {
+                $('#allProducts').html(result);
+            }).fail(function () {
+                alert("error");
+            });
+
+        });
+
+        $('.decreaseProductQuantity').click(function () {
+            debugger;
+            var productId = $(this).attr("id");
+            var tableNo = $("#hdnTableNo").val();
+            //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
+            $.get({
+                url: "/Order/ChangeProductQuantity/" + tableNo + "/" + productId + "/-1"
+            }).done(function (result) {
+                $('#allProducts').html(result);
+            }).fail(function () {
+                alert("error");
+            });
+
+        });
+    });
+
+</script>
 
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -12,17 +13,17 @@ namespace CafeGrove.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         // GET: Order
-        [Route("TakeOrder/{tableNo}",Name ="TakeOrder")]
+        [Route("TakeOrder/{tableNo}", Name = "TakeOrder")]
         public ActionResult TakeOrder(string tableNo)
         {
             ViewBag.tableNo = tableNo;
             return View(db.Categories.ToList());
         }
 
-        [Route("Tables",Name ="Tables")]
+        [Route("Tables", Name = "Tables")]
         public ActionResult Tables()
         {
-            
+
             return View();
         }
 
@@ -47,7 +48,7 @@ namespace CafeGrove.Controllers
                 productOrder.Quantity = productOrder.Quantity + 1;
                 db.SaveChanges();
             }
-            return PartialView("_OrderPatialView",db.Orders.Include("Product").Where(x=>x.TableNo==tableNo).ToList());
+            return PartialView("_OrderPatialView", db.Orders.Include("Product").Where(x => x.TableNo == tableNo).ToList());
         }
 
         [HttpGet]
@@ -57,20 +58,54 @@ namespace CafeGrove.Controllers
             var productOrder = db.Orders.FirstOrDefault(x => x.TableNo == tableNo && x.ProductId == productId);
             if (productOrder != null)
             {
-             
+
                 db.Orders.Remove(productOrder);
-                productOrder.Quantity = productOrder.Quantity + 1;
                 db.SaveChanges();
-            }`
+            }
             return PartialView("_OrderPatialView", db.Orders.Include("Product").Where(x => x.TableNo == tableNo).ToList());
         }
 
+        [HttpGet]
+        [Route("ChangeProductQuantity/{tableNo}/{productId}/{quantity}")]
+        public ActionResult ChangeProductQuantity(string tableNo, int productId,int quantity)
+        {
+            var productOrder = db.Orders.FirstOrDefault(x => x.TableNo == tableNo && x.ProductId == productId);
+            if (productOrder != null)
+            {
+                if (productOrder.Quantity == 1 && quantity == -1)
+                {
+                    db.Orders.Remove(productOrder);
+                 
+                }
+                else
+                {
+                    productOrder.Quantity += quantity;
+                    db.Entry(productOrder).State = EntityState.Modified;
+                }
+
+                db.SaveChanges();
+            }
+            return PartialView("_OrderPatialView", db.Orders.Include("Product").Where(x => x.TableNo == tableNo).ToList());
+        }
+        [Route("CompleteOrder/{tableNo}", Name = "CompleteOrder")]
+        public ActionResult CompleteOrder(string tableNo)
+        {
+            ViewBag.tableNo = tableNo;
+
+            foreach (var order in db.Orders.Where(x => x.TableNo == tableNo).ToList())
+            {
+                db.Orders.Remove(order);
+            }
+
+            db.SaveChanges();
+            return PartialView("_OrderPatialView", db.Orders.Include("Product").Where(x => x.TableNo == tableNo).ToList());
+        }
 
         [HttpGet]
         [Route("GetOrder/{tableNo}")]
         public ActionResult GetOrder(string tableNo)
         {
-            return PartialView("_OrderPatialView", db.Orders.Where(x => x.TableNo == tableNo).ToList());
+            return PartialView("_OrderPatialView", db.Orders.Include("Product").Where(x => x.TableNo == tableNo).ToList());
         }
 
         // GET: Order/Create

@@ -27,7 +27,7 @@
                             @foreach (var product in item.Products)
 
                             {
-                                <button class="btn btn-default addProduct" id="@product.Id">@product.Name</button>
+                                <button class="btn btn-primary addProduct" id="@product.Id">@product.Name</button>
                             }
                         </div>
                     }
@@ -71,7 +71,27 @@
                 <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                 Go Back to Tables
             </a>
-          
+            
+            <a href=" @Url.RouteUrl("CompleteOrder")" class="btn btn-warning" data-item-id="@ViewBag.tableNo" data-item-description="@ViewBag.tableNo" data-toggle="modal" data-target="#confirm-delete">
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                Complete Order
+            </a>
+            <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog modal-sm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Confirm Delete</h4>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to complete the order of table number:<b> <span class="description"></span></b>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <input type="submit" value="Delete" class="btn btn-danger" />
+                        </div>
+                    </div>
+                </div>
         </div>
     </div>
 </div>
@@ -96,30 +116,31 @@
                 var productId = $(this).attr("id");
                 var tableNo = $("#hdnTableNo").val();
                 //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
-                $.ajax({
-                    url: "/Order/AddToOrder/" + tableNo + "/" + productId,
-                    type: 'GET',
-                    cache: false,
+                $.get({
+                    url: "/Order/AddToOrder/" + tableNo + "/" + productId
                 }).done(function (result) {
                     $('#allProducts').html(result);
+                }).fail(function() {
+                    alert( "error" );
                 });
 
             });
-
-            $('.deleteProduct').click(function () {
-                debugger;
-                var productId = $(this).attr("id");
-                var tableNo = $("#hdnTableNo").val();
-                //"Url.Action("AddToOrder","Order")"+"/"+tableNo+"/"+productId,
-                $.ajax({
-                    url: "/Order/DeleteProductFromOrder/" + tableNo + "/" + productId,
-                    type: 'GET',
-                    cache: false,
+            $('#confirm-delete').on('click', '.btn-ok', function(e) {
+                var $modalDiv = $(e.delegateTarget);
+                var id = $(this).data('itemId');        
+                //$modalDiv.addClass('loading');
+                $.get('/Order/CompleteOrder/' + id).then(function () {
+                    //$modalDiv.modal('hide').removeClass('loading');
                 }).done(function (result) {
                     $('#allProducts').html(result);
                 });
-
             });
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                var data = $(e.relatedTarget).data();
+                $('.description', this).text(data.itemDescription);
+                $('.btn-ok', this).data('itemId', data.itemId);
+            });
+
             $('.showProduct').click(function () {
 
                 var id = $(this).attr("id");
